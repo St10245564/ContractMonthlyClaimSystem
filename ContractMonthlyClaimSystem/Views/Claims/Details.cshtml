@@ -1,0 +1,169 @@
+﻿@model ContractMonthlyClaimSystem.Models.Claim
+
+@{
+    ViewData["Title"] = "Claim Details";
+    var userType = Context.Session.GetString("UserType");
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h3 class="card-title mb-0">Claim Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Claim Information</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Claim ID:</th>
+                                    <td>@Model.ClaimId</td>
+                                </tr>
+                                <tr>
+                                    <th>Lecturer:</th>
+                                    <td>@Model.Lecturer?.FullName</td>
+                                </tr>
+                                <tr>
+                                    <th>Module:</th>
+                                    <td>@Model.Module?.ModuleCode - @Model.Module?.ModuleName</td>
+                                </tr>
+                                <tr>
+                                    <th>Claim Date:</th>
+                                    <td>@Model.ClaimDate.ToString("yyyy-MM-dd")</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Financial Details</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Hours Worked:</th>
+                                    <td>@Model.HoursWorked</td>
+                                </tr>
+                                <tr>
+                                    <th>Hourly Rate:</th>
+                                    <td>R @(Model.Module?.HourlyRate.ToString("N2") ?? "0.00")</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Amount:</th>
+                                    <td class="fw-bold">R @Model.TotalAmount.ToString("N2")</td>
+                                </tr>
+                                <tr>
+                                    <th>Status:</th>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(Model.Status)">
+                                            @Model.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>Description of Work</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    @if (string.IsNullOrEmpty(Model.Description))
+                                    {
+                                        <p class="text-muted fst-italic">No description provided.</p>
+                                    }
+                                    else
+                                    {
+                                        <p>@Model.Description</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.SupportingDocuments.Any())
+                    {
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5>Supporting Documents</h5>
+                                <div class="list-group">
+                                    @foreach (var doc in Model.SupportingDocuments)
+                                    {
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-file me-2"></i>
+                                                @doc.FileName
+                                                <small class="text-muted ms-2">
+                                                    (@(doc.FileSize / 1024) KB)
+                                                </small>
+                                            </div>
+                                            <a asp-action="DownloadDocument" asp-route-id="@doc.DocumentId"
+                                               class="btn btn-sm btn-outline-primary">
+                                                Download
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Status != "Pending")
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>Approval Information</h5>
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th>Approved/Rejected By:</th>
+                                        <td>@Model.Approver?.FullName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Date:</th>
+                                        <td>@Model.ApprovedDate?.ToString("yyyy-MM-dd HH:mm")</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <a href="@ViewBag.ReturnUrl" class="btn btn-secondary">Back</a>
+
+                    @if (userType == "Coordinator" || userType == "Manager")
+                    {
+                        @if (Model.Status == "Pending")
+                        {
+                            <form asp-action="Approve" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@Model.ClaimId" />
+                                <button type="submit" class="btn btn-success"
+                                        onclick="return confirm('Are you sure you want to approve this claim?')">
+                                    Approve Claim
+                                </button>
+                            </form>
+                            <form asp-action="Reject" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@Model.ClaimId" />
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to reject this claim?')">
+                                    Reject Claim
+                                </button>
+                            </form>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-warning",
+            "Approved" => "bg-success",
+            "Rejected" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

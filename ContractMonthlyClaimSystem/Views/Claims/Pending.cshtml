@@ -1,0 +1,86 @@
+﻿@model IEnumerable<ContractMonthlyClaimSystem.Models.Claim>
+
+@{
+    ViewData["Title"] = "Pending Claims";
+    var userType = Context.Session.GetString("UserType");
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Pending Claims</h1>
+        <span class="badge bg-warning">@Model.Count() Pending</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-success">
+            <h4>No pending claims</h4>
+            <p>All claims have been processed. Well done!</p>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Lecturer</th>
+                                <th>Module</th>
+                                <th>Claim Date</th>
+                                <th>Hours</th>
+                                <th>Amount</th>
+                                <th>Submitted</th>
+                                <th>Documents</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var claim in Model)
+                            {
+                                <tr>
+                                    <td>@claim.Lecturer?.FullName</td>
+                                    <td>@claim.Module?.ModuleCode</td>
+                                    <td>@claim.ClaimDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@claim.HoursWorked</td>
+                                    <td>R @claim.TotalAmount.ToString("N2")</td>
+                                    <td>@claim.SubmittedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        @if (claim.SupportingDocuments.Any())
+                                        {
+                                            <span class="badge bg-success">@claim.SupportingDocuments.Count</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">None</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@claim.ClaimId" class="btn btn-sm btn-info">Review</a>
+                                            <form asp-action="Approve" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@claim.ClaimId" />
+                                                <button type="submit" class="btn btn-sm btn-success"
+                                                        onclick="return confirm('Are you sure you want to approve this claim?')">
+                                                    Approve
+                                                </button>
+                                            </form>
+                                            <form asp-action="Reject" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@claim.ClaimId" />
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Are you sure you want to reject this claim?')">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

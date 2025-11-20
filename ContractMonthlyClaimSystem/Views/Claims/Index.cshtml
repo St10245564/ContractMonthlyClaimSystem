@@ -1,0 +1,79 @@
+﻿@model IEnumerable<ContractMonthlyClaimSystem.Models.Claim>
+
+@{
+    ViewData["Title"] = "My Claims";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>My Claims</h1>
+        <a asp-action="Create" class="btn btn-primary">Submit New Claim</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <h4>No claims submitted yet</h4>
+            <p>You haven't submitted any claims. Click the button above to submit your first claim.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Claim Date</th>
+                                <th>Module</th>
+                                <th>Hours</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var claim in Model)
+                            {
+                                <tr>
+                                    <td>@claim.ClaimDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@claim.Module?.ModuleCode</td>
+                                    <td>@claim.HoursWorked</td>
+                                    <td>R @claim.TotalAmount.ToString("N2")</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(claim.Status)">
+                                            @claim.Status
+                                        </span>
+                                    </td>
+                                    <td>@claim.SubmittedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@claim.ClaimId" class="btn btn-sm btn-info">View</a>
+                                        @if (claim.Status == "Pending")
+                                        {
+                                            <a asp-action="Create" class="btn btn-sm btn-warning">Edit</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-warning",
+            "Approved" => "bg-success",
+            "Rejected" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

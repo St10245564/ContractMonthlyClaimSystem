@@ -1,0 +1,149 @@
+﻿@model ContractMonthlyClaimSystem.Models.ReportResultViewModel
+
+@{
+    ViewData["Title"] = "Report Results";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@Model.ReportTitle</h1>
+        <div>
+            <a href="javascript:window.print()" class="btn btn-secondary">
+                <i class="fas fa-print me-2"></i>Print
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Reports
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Generated:</strong> @Model.GeneratedDate.ToString("yyyy-MM-dd HH:mm")</p>
+                            <p><strong>Period:</strong> @ViewBag.ReportParameters.StartDate.ToString("yyyy-MM-dd") to @ViewBag.ReportParameters.EndDate.ToString("yyyy-MM-dd")</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p><strong>Total Claims:</strong> @Model.Summary.TotalClaims</p>
+                            <p><strong>Total Amount:</strong> R @Model.Summary.TotalAmount.ToString("N2")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Summary.TotalClaims</h4>
+                    <p class="mb-0">Total Claims</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Summary.PendingClaims</h4>
+                    <p class="mb-0">Pending</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Summary.ApprovedClaims</h4>
+                    <p class="mb-0">Approved</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Summary.RejectedClaims</h4>
+                    <p class="mb-0">Rejected</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Summary.TotalLecturers</h4>
+                    <p class="mb-0">Lecturers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h4>R @Model.Summary.TotalAmount.ToString("N2")</h4>
+                    <p class="mb-0">Total Value</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claims Table -->
+    <div class="card shadow">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="card-title mb-0">Claims Details</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Lecturer</th>
+                            <th>Module</th>
+                            <th>Claim Date</th>
+                            <th>Hours</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Approved By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var claim in Model.Claims)
+                        {
+                            <tr>
+                                <td>@claim.ClaimId</td>
+                                <td>@claim.LecturerName</td>
+                                <td>@claim.ModuleCode</td>
+                                <td>@claim.ClaimDate.ToString("yyyy-MM-dd")</td>
+                                <td>@claim.HoursWorked</td>
+                                <td>R @claim.TotalAmount.ToString("N2")</td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(claim.Status)">
+                                        @claim.Status
+                                    </span>
+                                </td>
+                                <td>@claim.SubmittedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@claim.ApprovedBy</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-warning",
+            "Approved" => "bg-success",
+            "Rejected" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -1,0 +1,107 @@
+﻿@model ContractMonthlyClaimSystem.Models.ReportViewModel
+
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Generate Reports</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Report Parameters</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="GenerateReport" method="post" id="reportForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartDate" class="form-label">Start Date</label>
+                                <input asp-for="StartDate" class="form-control" type="date" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndDate" class="form-label">End Date</label>
+                                <input asp-for="EndDate" class="form-control" type="date" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ReportType" class="form-label">Report Type</label>
+                                <select asp-for="ReportType" class="form-control">
+                                    <option value="MonthlySummary">Monthly Summary</option>
+                                    <option value="LecturerPerformance">Lecturer Performance</option>
+                                    <option value="FinancialSummary">Financial Summary</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="StatusFilter" class="form-label">Status Filter</label>
+                                <select asp-for="StatusFilter" class="form-control">
+                                    <option value="All">All Statuses</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-chart-bar me-2"></i>Generate Report
+                            </button>
+                            <button type="submit" formaction="@Url.Action("ExportToCsv")" class="btn btn-success">
+                                <i class="fas fa-file-csv me-2"></i>Export to CSV
+                            </button>
+                            <button type="submit" formaction="@Url.Action("ExportToPdf")" class="btn btn-danger">
+                                <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                            </button>
+                            <a href="@Url.Action("AuditLogs")" class="btn btn-info">
+                                <i class="fas fa-history me-2"></i>View Audit Logs
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Report Types</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Monthly Summary</h6>
+                        <p class="text-muted small">Overview of all claims for the selected period with financial totals.</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Lecturer Performance</h6>
+                        <p class="text-muted small">Detailed analysis of lecturer claims and performance metrics.</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Financial Summary</h6>
+                        <p class="text-muted small">Financial overview with totals, averages, and budget analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Set default dates
+            var today = new Date();
+            var firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            $('#StartDate').val(firstDay.toISOString().split('T')[0]);
+            $('#EndDate').val(today.toISOString().split('T')[0]);
+        });
+    </script>
+}

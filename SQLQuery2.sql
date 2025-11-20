@@ -1,0 +1,10 @@
+﻿SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE 
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = 'Modules'
+
+-- Add IsActive column to Users table
+ALTER TABLE [dbo].[Users] 
+ADD [IsActive] BIT NOT NULL DEFAULT 1;
+
+ALTER TABLE [dbo].[Modules] 
+ADD [IsActive] BIT NOT NULL DEFAULT 1;
