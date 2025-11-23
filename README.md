@@ -395,8 +395,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### ⭐ Star this repository if you find it helpful!
 
-**Version 1.0** • Last Updated: December 2024
+**Version 1.0** • Last Updated: December 2025
 
-Made with 💙 by developers, for developers
+Made with 💙 by Thato, 
 
 </div>
